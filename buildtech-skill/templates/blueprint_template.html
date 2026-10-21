@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hardware Manufacturing Blueprint & Engineering Dossier</title>
+  <style>
+    :root {
+      --primary: #1e293b;
+      --accent: #0284c7;
+      --border: #cbd5e1;
+      --bg-light: #f8fafc;
+      --text: #0f172a;
+      --text-muted: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: #f1f5f9;
+      color: var(--text);
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Print Floating Action Bar */
+    .action-bar {
+      width: 100%;
+      max-width: 900px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 14px 24px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-export {
+      background: #0284c7;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4);
+      transition: background 0.2s ease;
+    }
+
+    .btn-export:hover {
+      background: #0369a1;
+    }
+
+    /* Printable Page Document */
+    .document-page {
+      background: white;
+      width: 100%;
+      max-width: 900px;
+      padding: 60px 70px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Header & Meta */
+    .doc-header {
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .doc-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+    }
+
+    .doc-subtitle {
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .meta-table {
+      font-size: 0.85rem;
+      border-collapse: collapse;
+      text-align: right;
+    }
+
+    .meta-table td {
+      padding: 3px 6px;
+    }
+
+    .meta-label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .meta-val {
+      font-weight: 600;
+    }
+
+    /* Sections */
+    section {
+      margin-bottom: 35px;
+    }
+
+    h2 {
+      font-size: 1.3rem;
+      color: var(--primary);
+      border-left: 4px solid var(--accent);
+      padding-left: 10px;
+      margin-bottom: 14px;
+    }
+
+    p, li {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #334155;
+    }
+
+    /* Tables */
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+
+    table.data-table th, table.data-table td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    table.data-table th {
+      background: var(--bg-light);
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    table.data-table tr:nth-child(even) {
+      background: #fafbfc;
+    }
+
+    /* Code Blocks */
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      line-height: 1.5;
+      margin-top: 12px;
+    }
+
+    /* Schematics / ASCII */
+    .schematic-box {
+      background: #f8fafc;
+      border: 1px dashed #94a3b8;
+      border-radius: 8px;
+      padding: 16px;
+      font-family: monospace;
+      white-space: pre;
+      font-size: 0.85rem;
+      color: #1e293b;
+      overflow-x: auto;
+    }
+
+    /* Print Media Rules */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+
+      .action-bar {
+        display: none !important;
+      }
+
+      .document-page {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        max-width: 100%;
+      }
+
+      pre, .schematic-box {
+        border: 1px solid #ccc;
+        page-break-inside: avoid;
+      }
+
+      section {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Print Bar -->
+  <div class="action-bar">
+    <div>
+      <strong>BuildTech Hardware Engineering Dossier</strong>
+      <span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 10px;">Ready for manufacturing & PDF export</span>
+    </div>
+    <button class="btn-export" onclick="window.print()">
+      🖨️ Export to PDF / Print
+    </button>
+  </div>
+
+  <!-- Document Page -->
+  <div class="document-page">
+    
+    <!-- Document Header -->
+    <header class="doc-header">
+      <div>
+        <h1 class="doc-title" id="project-title">Smart Plant Care IoT System</h1>
+        <div class="doc-subtitle">Automated Moisture Sensing & Irrigation Controller</div>
+      </div>
+      <table class="meta-table">
+        <tr>
+          <td class="meta-label">Doc ID:</td>
+          <td class="meta-val">BT-2026-0042</td>
+        </tr>
+        <tr>
+          <td class="meta-label">Revision:</td>
+          <td class="meta-val">1.0 (Production)</td>
+        </tr>
+        <tr>
+          <td class="meta-label">Date:</td>
+          <td class="meta-val">October 22, 2026</td>
+        </tr>
+        <tr>
+          <td class="meta-label">Target MCU:</td>
+          <td class="meta-val">ESP32-WROOM-32D</td>
+        </tr>
+      </table>
+    </header>
+
+    <!-- 1. Executive Summary -->
+    <section>
+      <h2>1. Product Overview & System Architecture</h2>
+      <p>
+        The system continuously monitors soil volumetric water content and ambient temperature. When soil moisture drops below 35%, the system opens a 5V solenoid water valve for 15 seconds, displays status diagnostics on an I2C LCD screen, and blinks a warning indicator. All telemetry is broadcast over serial and Wi-Fi.
+      </p>
+    </section>
+
+    <!-- 2. Bill of Materials (BOM) -->
+    <section>
+      <h2>2. Complete Bill of Materials (BOM)</h2>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Item #</th>
+            <th>Component</th>
+            <th>Designator</th>
+            <th>Specs / Operating Voltage</th>
+            <th>Qty</th>
+            <th>Est. Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>ESP32 Development Board</td>
+            <td>U1</td>
+            <td>3.3V Logic, Wi-Fi/BLE, 30-pin</td>
+            <td>1</td>
+            <td>$4.50</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Capacitive Soil Moisture Sensor</td>
+            <td>S1</td>
+            <td>Analog output (v1.2, 3.3V-5V)</td>
+            <td>1</td>
+            <td>$1.80</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>16x2 LCD Display with I2C Backpack</td>
+            <td>DISP1</td>
+            <td>PCF8574 I2C adapter, 5V / 3.3V</td>
+            <td>1</td>
+            <td>$3.20</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>5V Single Channel Relay Module</td>
+            <td>RL1</td>
+            <td>Optocoupled, 10A 250VAC rating</td>
+            <td>1</td>
+            <td>$1.20</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>Submersible 5V DC Mini Water Pump</td>
+            <td>M1</td>
+            <td>120L/H flow rate, 5V DC 200mA</td>
+            <td>1</td>
+            <td>$2.50</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>LEDs & Resistors Pack</td>
+            <td>D1, D2, R1-R2</td>
+            <td>Red/Green 5mm LEDs + 220Ω resistors</td>
+            <td>1 kit</td>
+            <td>$0.60</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 3. Pin-to-Pin Wiring Matrix -->
+    <section>
+      <h2>3. Pin-to-Pin Wiring Matrix</h2>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Source Component & Pin</th>
+            <th>Target MCU Pin</th>
+            <th>Signal Role</th>
+            <th>Notes & Requirements</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Moisture Sensor AOUT</td>
+            <td>GPIO 34 (ADC1_CH6)</td>
+            <td>Analog Input</td>
+            <td>Input-only pin on ESP32, 12-bit ADC</td>
+          </tr>
+          <tr>
+            <td>LCD 1602 SDA</td>
+            <td>GPIO 21</td>
+            <td>I2C Data</td>
+            <td>Internal or external 4.7kΩ pullup</td>
+          </tr>
+          <tr>
+            <td>LCD 1602 SCL</td>
+            <td>GPIO 22</td>
+            <td>I2C Clock</td>
+            <td>100kHz standard mode</td>
+          </tr>
+          <tr>
+            <td>Relay Module IN</td>
+            <td>GPIO 18</td>
+            <td>Digital Output</td>
+            <td>Active LOW trigger</td>
+          </tr>
+          <tr>
+            <td>Red Alert LED Anode</td>
+            <td>GPIO 4</td>
+            <td>Digital Output</td>
+            <td>In series with 220Ω resistor to GND</td>
+          </tr>
+          <tr>
+            <td>Status Green LED Anode</td>
+            <td>GPIO 2</td>
+            <td>Digital Output</td>
+            <td>Onboard status / blinker</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 4. Schematic Representation -->
+    <section>
+      <h2>4. Schematic & Electrical Interconnections</h2>
+      <div class="schematic-box">
++-------------------------------------------------------------+
+|                      ESP32 DEV MODULE                       |
+|                                                             |
+| [3V3] ----+--------> VCC (Moisture Sensor S1)              |
+| [GND] ----+--------> Common Ground Bus                      |
+| [VIN] ----+--------> 5V Power Supply Rail                   |
+|                                                             |
+| [GPIO 34] <-------- Analog Signal (Moisture Sensor S1)      |
+| [GPIO 21] <=======> SDA (LCD 1602 I2C Display)              |
+| [GPIO 22] --------> SCL (LCD 1602 I2C Display)              |
+| [GPIO 18] --------> IN  (Relay Module RL1) ----> [Pump 5V] |
+| [GPIO 04] --------> [220R] ----> (Red Alert LED) ----> GND  |
++-------------------------------------------------------------+
+      </div>
+    </section>
+
+    <!-- 5. Complete Firmware Code -->
+    <section>
+      <h2>5. Production Firmware (C++ / Arduino IDE)</h2>
+      <pre><code>#include &lt;Wire.h&gt;
+#include &lt;LiquidCrystal_I2C.h&gt;
+
+#define PIN_MOISTURE   34
+#define PIN_RELAY      18
+#define PIN_ALERT_LED  4
+#define PIN_STATUS_LED 2
+
+#define DRY_THRESHOLD  35   // Percentage below which watering triggers
+#define WATER_DURATION 5000 // 5 seconds pump run
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+unsigned long lastSampleTime = 0;
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(PIN_RELAY, OUTPUT);
+  pinMode(PIN_ALERT_LED, OUTPUT);
+  pinMode(PIN_STATUS_LED, OUTPUT);
+
+  // Relay is Active-LOW
+  digitalWrite(PIN_RELAY, HIGH);
+  digitalWrite(PIN_ALERT_LED, LOW);
+
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("BuildTech Plant");
+  lcd.setCursor(0, 1);
+  lcd.print("System Ready...");
+  delay(1500);
+}
+
+void loop() {
+  unsigned long now = millis();
+  if (now - lastSampleTime >= 2000) {
+    lastSampleTime = now;
+
+    int rawAdc = analogRead(PIN_MOISTURE);
+    // ESP32 12-bit ADC: 0 to 4095
+    int moisturePercent = map(rawAdc, 4095, 1500, 0, 100);
+    moisturePercent = constrain(moisturePercent, 0, 100);
+
+    Serial.printf("[TELEMETRY] Moisture: %d%% (ADC: %d)\n", moisturePercent, rawAdc);
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.printf("Moisture: %d%%", moisturePercent);
+
+    if (moisturePercent < DRY_THRESHOLD) {
+      lcd.setCursor(0, 1);
+      lcd.print("STATUS: PUMP ON");
+      digitalWrite(PIN_ALERT_LED, HIGH);
+      digitalWrite(PIN_RELAY, LOW); // Trigger pump
+      delay(WATER_DURATION);
+      digitalWrite(PIN_RELAY, HIGH);
+      digitalWrite(PIN_ALERT_LED, LOW);
+    } else {
+      lcd.setCursor(0, 1);
+      lcd.print("STATUS: OPTIMAL");
+    }
+  }
+}</code></pre>
+    </section>
+
+    <!-- 6. Physical Assembly & First-Boot Procedure -->
+    <section>
+      <h2>6. Assembly Instructions & First-Boot Checklist</h2>
+      <ol style="padding-left: 20px;">
+        <li><strong>Step 1 (Power Bus)</strong>: Connect the USB-C / 5V power supply. Never connect 5V directly to ESP32 GPIO pins.</li>
+        <li><strong>Step 2 (Ground Rail)</strong>: Ensure all modules share a unified common GND rail.</li>
+        <li><strong>Step 3 (I2C Scanning)</strong>: Flash an I2C scanner sketch to verify LCD address (typically <code>0x27</code> or <code>0x3F</code>).</li>
+        <li><strong>Step 4 (Calibration)</strong>: Calibrate sensor readings in completely dry soil (0%) and water-saturated soil (100%).</li>
+      </ol>
+    </section>
+
+  </div>
+
+</body>
+</html>

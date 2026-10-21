@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BuildTech Virtual Hardware Lab Simulator</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.4);
+      --led-off: #334155;
+      --led-red-on: #ef4444;
+      --led-green-on: #22c55e;
+      --led-blue-on: #3b82f6;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --terminal-bg: #090d16;
+      --border: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .badge {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid var(--accent);
+    }
+
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+      flex: 1;
+    }
+
+    @media (max-width: 960px) {
+      .grid-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Virtual Hardware Canvas */
+    .lab-stage {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, #1e293b, #0f172a);
+      min-height: 380px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      position: relative;
+      padding: 20px;
+    }
+
+    .hardware-components {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* LED Styles */
+    .led-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .led {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--led-off);
+      border: 2px solid #64748b;
+      transition: all 0.15s ease-in-out;
+    }
+
+    .led.red.active {
+      background: var(--led-red-on);
+      box-shadow: 0 0 20px var(--led-red-on), inset 0 0 8px #fff;
+    }
+
+    .led.green.active {
+      background: var(--led-green-on);
+      box-shadow: 0 0 20px var(--led-green-on), inset 0 0 8px #fff;
+    }
+
+    .led.blue.active {
+      background: var(--led-blue-on);
+      box-shadow: 0 0 20px var(--led-blue-on), inset 0 0 8px #fff;
+    }
+
+    /* LCD Screen Display */
+    .lcd-screen {
+      background: #022c22;
+      border: 4px solid #134e4a;
+      border-radius: 6px;
+      padding: 12px 18px;
+      font-family: 'Courier New', monospace;
+      color: #34d399;
+      text-shadow: 0 0 6px rgba(52, 211, 153, 0.6);
+      width: 260px;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+    }
+
+    .lcd-line {
+      font-size: 1.05rem;
+      letter-spacing: 1.5px;
+      height: 24px;
+      white-space: pre;
+    }
+
+    /* Servo Motor Indicator */
+    .servo-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .servo-dial {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: #334155;
+      border: 3px solid #64748b;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .servo-pointer {
+      width: 4px;
+      height: 28px;
+      background: #f59e0b;
+      border-radius: 2px;
+      position: absolute;
+      bottom: 50%;
+      transform-origin: bottom center;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Interactive Controls Panel */
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .control-label span.value {
+      color: var(--accent);
+      font-weight: 600;
+      font-family: monospace;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .tactile-btn {
+      width: 100%;
+      background: #334155;
+      color: var(--text);
+      border: 1px solid #475569;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.1s ease;
+      user-select: none;
+    }
+
+    .tactile-btn:active, .tactile-btn.pressed {
+      background: var(--accent);
+      color: #0f172a;
+      transform: translateY(2px);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    /* Serial Monitor Terminal */
+    .terminal-container {
+      background: var(--terminal-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: 'Consolas', 'Fira Code', monospace;
+      font-size: 0.85rem;
+      height: 180px;
+      overflow-y: auto;
+      color: #a7f3d0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .log-line {
+      line-height: 1.4;
+    }
+
+    .log-line .timestamp {
+      color: #64748b;
+      margin-right: 8px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .secondary-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .secondary-btn:hover {
+      background: var(--card-bg);
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>⚡ Virtual Hardware Lab</h1>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">Interactive Testing Environment powered by BuildTech AI</p>
+    </div>
+    <span class="badge" id="status-badge">● SIMULATOR ACTIVE</span>
+  </header>
+
+  <div class="grid-layout">
+    <!-- Left: Virtual Hardware Stage & Serial Monitor -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      
+      <!-- Virtual Breadboard Stage -->
+      <div class="card">
+        <div class="card-title">🔬 Virtual Hardware Stage</div>
+        <div class="lab-stage">
+          
+          <div class="hardware-components">
+            <!-- Simulated LEDs -->
+            <div class="led-container">
+              <div id="led-red" class="led red"></div>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">Alert (D4)</span>
+            </div>
+
+            <div class="led-container">
+              <div id="led-green" class="led green"></div>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">Status (D2)</span>
+            </div>
+
+            <!-- Simulated LCD Screen -->
+            <div class="lcd-screen">
+              <div class="lcd-line" id="lcd-line-1">SYS: READY</div>
+              <div class="lcd-line" id="lcd-line-2">TEMP: 24.5C OK</div>
+            </div>
+
+            <!-- Simulated Servo Motor / Gauge -->
+            <div class="servo-box">
+              <div class="servo-dial">
+                <div class="servo-pointer" id="servo-needle" style="transform: rotate(0deg);"></div>
+              </div>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">Valve (0°-180°)</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Live Serial Monitor -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div class="card-title" style="margin: 0;">📟 Virtual Serial Monitor (115200 baud)</div>
+          <button class="secondary-btn" onclick="clearTerminal()">Clear</button>
+        </div>
+        <div class="terminal-container" id="terminal">
+          <div class="log-line"><span class="timestamp">[0.000s]</span> [FIRMWARE] Initializing system peripherals...</div>
+          <div class="log-line"><span class="timestamp">[0.120s]</span> [I2C] LCD 1602 detected at 0x27</div>
+          <div class="log-line"><span class="timestamp">[0.250s]</span> [SENSOR] DHT22 calibrated. Ready for loop.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right: Interactive User Controls -->
+    <div class="card">
+      <div class="card-title">🎛️ Interactive Sensor Inputs</div>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">
+        Adjust the physical inputs below to test the embedded firmware's live response.
+      </p>
+
+      <!-- Pushbutton -->
+      <div class="control-group">
+        <label class="control-label">
+          <span>Tactile Pushbutton (D5)</span>
+          <span class="value" id="btn-state">RELEASED</span>
+        </label>
+        <button class="tactile-btn" id="action-btn" 
+          onmousedown="pressButton()" 
+          onmouseup="releaseButton()"
+          ontouchstart="pressButton()" 
+          ontouchend="releaseButton()">
+          🔘 Push Button Switch
+        </button>
+      </div>
+
+      <!-- Temperature Slider -->
+      <div class="control-group">
+        <label class="control-label">
+          <span>Temperature Sensor</span>
+          <span class="value" id="temp-val">24.5 °C</span>
+        </label>
+        <input type="range" id="temp-slider" min="0" max="60" step="0.5" value="24.5" oninput="updateSensors()">
+      </div>
+
+      <!-- Moisture Slider -->
+      <div class="control-group">
+        <label class="control-label">
+          <span>Moisture / Level Sensor</span>
+          <span class="value" id="moist-val">65 %</span>
+        </label>
+        <input type="range" id="moist-slider" min="0" max="100" step="1" value="65" oninput="updateSensors()">
+      </div>
+
+      <!-- Simulator State Controls -->
+      <div style="margin-top: 30px; border-top: 1px solid var(--border); padding-top: 16px;">
+        <button class="tactile-btn" id="sim-toggle-btn" onclick="toggleSimulation()" style="background: #0284c7;">
+          ⏸️ Pause Simulation
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // System Simulation State
+    let isRunning = true;
+    let buttonPressed = false;
+    let simStartTime = Date.now();
+    let loopCount = 0;
+
+    function getElapsedSeconds() {
+      return ((Date.now() - simStartTime) / 1000).toFixed(3);
+    }
+
+    function logSerial(msg) {
+      const terminal = document.getElementById('terminal');
+      const line = document.createElement('div');
+      line.className = 'log-line';
+      line.innerHTML = `<span class="timestamp">[${getElapsedSeconds()}s]</span> ${msg}`;
+      terminal.appendChild(line);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    function clearTerminal() {
+      document.getElementById('terminal').innerHTML = '';
+    }
+
+    function pressButton() {
+      buttonPressed = true;
+      document.getElementById('btn-state').innerText = 'PRESSED';
+      document.getElementById('action-btn').classList.add('pressed');
+      logSerial('[INTERRUPT] Button D5 pressed!');
+    }
+
+    function releaseButton() {
+      buttonPressed = false;
+      document.getElementById('btn-state').innerText = 'RELEASED';
+      document.getElementById('action-btn').classList.remove('pressed');
+    }
+
+    function updateSensors() {
+      const temp = document.getElementById('temp-slider').value;
+      const moist = document.getElementById('moist-slider').value;
+      document.getElementById('temp-val').innerText = temp + ' °C';
+      document.getElementById('moist-val').innerText = moist + ' %';
+    }
+
+    function toggleSimulation() {
+      isRunning = !isRunning;
+      const btn = document.getElementById('sim-toggle-btn');
+      const badge = document.getElementById('status-badge');
+      if (isRunning) {
+        btn.innerText = '⏸️ Pause Simulation';
+        badge.innerText = '● SIMULATOR ACTIVE';
+        badge.style.color = '#38bdf8';
+        badge.style.borderColor = '#38bdf8';
+      } else {
+        btn.innerText = '▶️ Resume Simulation';
+        badge.innerText = '⏸ SIMULATOR PAUSED';
+        badge.style.color = '#f59e0b';
+        badge.style.borderColor = '#f59e0b';
+      }
+    }
+
+    // Main Simulated Firmware Loop (runs every 500ms like a real Arduino loop)
+    setInterval(() => {
+      if (!isRunning) return;
+      loopCount++;
+
+      const temp = parseFloat(document.getElementById('temp-slider').value);
+      const moist = parseInt(document.getElementById('moist-slider').value);
+
+      const redLed = document.getElementById('led-red');
+      const greenLed = document.getElementById('led-green');
+      const lcdLine1 = document.getElementById('lcd-line-1');
+      const lcdLine2 = document.getElementById('lcd-line-2');
+      const servo = document.getElementById('servo-needle');
+
+      // Firmware Logic Emulation:
+      // Status LED blinks normally
+      if (loopCount % 2 === 0) {
+        greenLed.classList.add('active');
+      } else {
+        greenLed.classList.remove('active');
+      }
+
+      // Check Alert Thresholds
+      if (temp > 35 || moist < 30 || buttonPressed) {
+        redLed.classList.add('active');
+        servo.style.transform = 'rotate(90deg)'; // Open emergency valve
+        lcdLine1.innerText = 'ALERT: TRIGGERED';
+        lcdLine2.innerText = `T:${temp}C M:${moist}% ERR`;
+        
+        if (loopCount % 4 === 0) {
+          logSerial(`[WARN] Alert state active! Temp=${temp}C, Moist=${moist}%, Btn=${buttonPressed}`);
+        }
+      } else {
+        redLed.classList.remove('active');
+        servo.style.transform = 'rotate(0deg)'; // Close valve
+        lcdLine1.innerText = 'SYS: NOMINAL';
+        lcdLine2.innerText = `T:${temp}C M:${moist}%`;
+      }
+
+    }, 500);
+  </script>
+</body>
+</html>
