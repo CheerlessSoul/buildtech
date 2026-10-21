@@ -9,7 +9,7 @@
 ### 1. Universal Terminal Install:
 
 **Windows (PowerShell):**
-```powershell
+```powershell`
 irm https://raw.githubusercontent.com/CheerlessSoul/buildtech/main/install.ps1 | iex
 
 Mac / Linux (Terminal):
