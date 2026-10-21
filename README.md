@@ -1,34 +1,52 @@
 # ⚡ BuildTech — Autonomous 3D Hardware Prototyping AI Skill
 
-> Turn any hardware idea into a fully engineered, coded, wired, and 3D virtually simulated product in your browser!
+Turn any hardware idea into a fully engineered, coded, wired, and 3D virtually simulated product right in your browser!
 
 ---
 
 ## 🚀 1-Click Install
 
-### 1. Universal Terminal Install:
+### 1. Universal Terminal Install
 
 **Windows (PowerShell):**
-```powershell`
+```powershell
 irm https://raw.githubusercontent.com/CheerlessSoul/buildtech/main/install.ps1 | iex
+```
 
-Mac / Linux (Terminal):
+**Mac / Linux (Terminal):**
+```bash
 curl -sSL https://raw.githubusercontent.com/CheerlessSoul/buildtech/main/install.sh | bash
+```
 
-2. Install by AI Agent:
+### 2. Install by AI Agent
 
-Google Antigravity:
+**Google Antigravity:**
+```bash
 git clone https://github.com/CheerlessSoul/buildtech.git ~/.gemini/config/skills/buildtech
+```
 
-Anthropic Claude (Claude Code):
+**Anthropic Claude (Claude Code):**
+```bash
 git clone https://github.com/CheerlessSoul/buildtech.git .claude/skills/buildtech
+```
 
-Cursor / Codex:
+**Cursor / Codex:**
+```bash
 git clone https://github.com/CheerlessSoul/buildtech.git .agents/skills/buildtech
+```
 
-💡 How to Use
+---
 
-Type /buildtech in your AI chat followed by any hardware idea:
+## 💡 How to Use
 
+Type `/buildtech` in your AI chat followed by any hardware idea you want to build.
+
+**Example 1: Smart Plant System**
+```text
 /buildtech smart plant watering system with moisture sensor and mini pump
+```
+
+**Example 2: Desk Hub**
+```text
 /buildtech voice-controlled desk hub to turn on lights and fans
+```
